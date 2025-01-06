@@ -22,7 +22,7 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 32px;
+  gap: 20px;
   align-self: stretch;
 }
 
@@ -66,7 +66,51 @@
   background: #3C82F6;
 }
 
+.filter-container {
+  display: flex;
+  gap: 6px;
 
+}
+
+.filter {
+  display: flex;
+  height: 24px;
+  padding: 4px 12px;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  color: #363636;
+
+  font-family: Inter;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+  border-radius: 6px;
+  background-color: #F3F4F6;
+  cursor: pointer;
+  transition: all 0.8s ease;
+}
+.filter:hover {
+  background-color: #E5E7EB;
+}
+
+.filter.active {
+  background-color: #3C82F6;
+  color: white;
+}
+
+.task-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  align-items: center;
+  width: 100%;
+}
+.task-item {
+  display: flex;
+  gap: 10px;
+}
 
 .noTask {
   color: #6B7280;
@@ -79,13 +123,50 @@
   align-self: stretch;
 }
 
-.task {
+.task-text {
   color: #000;
   font-family: Inter;
   font-size: 14px;
   font-style: normal;
   font-weight: 400;
   line-height: normal;
+}
+
+.task {
+  display: flex;
+  width: 345px;
+  height: 30px;
+  padding: 16px;
+  align-items: center;
+  background-color: #F9FAFB;
+  border-radius: var(--radius-rounded-md, 6px);
+  justify-content: space-between;
+  transition: all 0.3s ease;
+}
+.task:hover{
+  background: #F3F4F6;
+}
+
+.delete-btn {
+  display: flex;
+  padding: 6px 12px;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  align-self: stretch;
+  font-family: Inter;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+  background-color: none;
+
+  border-radius: 6px;
+  background-color: #FEF2F2;
+  transition: all 0.3s ease;
+}
+.delete-btn:hover {
+  color: #EF4444;
 }
 
 .footer {
