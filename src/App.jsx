@@ -1,12 +1,17 @@
 import React, { useState } from 'react'
 import './App.css';
 import { v4 as uuidv4 } from 'uuid';
+import moment from 'moment';
 
 function App() {
   const [task, setTask] = useState('')
   const [list, setList] = useState([])
   const [error, setError] = useState('')
   const [filter, setFilter] = useState("All")
+  const [logs, setLogs] = useState([])
+  const [mainLogs, setMainLogs] = useState([])
+  const [time, setTime] = useState(null);
+
 
   const onChange = (e) => {
     setTask(e.target.value)
@@ -17,27 +22,86 @@ function App() {
       setError(true)
     } else {
       setError(false);
-      setList([...list, { description: task, status: "Active", id: uuidv4() }])
+      const newTask = { description: task, id: uuidv4(), status: "Active", }
+      const newLogs = { taskDescription: newTask.description, id: newTask.id, logs: [{ status: 'Active', time: moment().format('MMM Do YYYY, h:mm a') }] }
+      setList([...list, newTask])
+      setMainLogs([...mainLogs, newTask])
+      setLogs([...logs, newLogs])
       setTask("")
     }
-
+    console.log(logs);
+    
+    console.log(list)
   }
   const handleCheckBox = (id) => {
     const tasks = list.map((task) => {
-      // console.log(id)
       if (task.id === id) {
-        return { ...task, status: task.status === "Completed" ? "Active" : "Completed" }
+        const newStatus = task.status === "Completed" ? "Active" : "Completed"
+        const newLogs = logs.map((el)=>{
+          if(el.id == id){
+            const newEl = {...el, logs:[...el.logs, { status: newStatus, time: moment().format('MMM Do YYYY, h:mm a') }]}
+            return newEl
+          } else return el
+        })
+        console.log(newLogs);
+        
+        setLogs(newLogs)
+        setMainLogs(newLogs)
+        return { ...task, status: newStatus }
       }
       else {
         return task;
       }
     })
     setList(tasks);
+    console.log("main log" + mainLogs);
+    console.log(mainLogs);
+     
   }
 
-  const handleFilterState = (state) => [
-    setFilter(state)
-  ]
+  const checkedTask = list.filter((task) => task.status === "Completed").length;
+  const totalTask = list.length;
+
+
+  const handleDeleteButton = (id) => {
+    const updateLog = {
+      status: 'Deleted',
+      time: moment().format('MMM Do YYYY, h:mm a')
+    }
+    setLogs((preLog) => [...preLog, updateLog])
+
+    const newTasks = list.filter((el) => {
+      return el.id !== id
+    });
+
+    setList(newTasks);
+  }
+
+  const handleClearButton = () => {
+    const newTasks = list.filter(list => list.status !== "Completed")
+    setList(newTasks);
+  }
+
+  const handleFilterState = (state) => { setFilter(state) }
+
+  const completedTasks = list.filter((task) => task.status === 'Completed').length === 0
+  const activeTasks = list.filter((task) => task.status === 'Active').length === 0
+  const allTask = list.length === 0
+  const filteredStatus = () => {
+    if (filter === "Active" && activeTasks) {
+      return <p className='noTask'>No active tasks found.</p>
+    }
+    else if (filter === "Completed" && completedTasks) {
+      return <p className='noTask'>No completed tasks found.</p>
+    }
+    else if (filter === "All" && allTask) {
+      return <p className='noTask'>No tasks yet. Add one above!</p>
+    } else if(filter === "Logs"){
+      return <p className='noTask'>No logs found.</p>
+    } else {
+      return null
+    }
+  }
   return (
     <>
       <div className='board-comp'>
@@ -51,27 +115,50 @@ function App() {
             <div className={`filter ${filter === "All" ? "active" : ""}`} onClick={() => handleFilterState("All")} >All</div>
             <div className={`filter ${filter === "Active" ? "active" : ""}`} onClick={() => handleFilterState("Active")}>Active</div>
             <div className={`filter ${filter === "Completed" ? "active" : ""}`} onClick={() => handleFilterState("Completed")}>Completed</div>
+            <div className={`filter ${filter === "Logs" ? "active" : ""}`} onClick={() => handleFilterState("Logs")}>Logs</div>
           </div>
           <div className='task-container'>
+            {filteredStatus()}
+            { (filter === "Logs") ?
+              mainLogs.map((list, index) => (
+                <div key={index} className='log-container'>
+                  <p className='log-text'>{list.taskDescription}</p>
+                  {list.logs.map((log, index) => (
+                    <div key={index}>
+                      <p className='log-text'>STATUS:{log.status}</p>
+                      <p className='log-text'>Date:{log.time}</p>
+                    </div>
+                  ))}
+                </div>
+              )) : null
+            }
             {
-              (list.length === 0) ? <p className='noTask'>No tasks yet. Add one above!</p> :
-                list.filter((list) => {
-                  if (filter === "Active") {
-                    return list.status === "Active"
-                  } else if (filter === "Completed") {
-                    return list.status === "Completed"
-                  } else { return true }
-                }).map((task, index) => (
-                  <div key={index} className='task'>
-                    <div className='task-item'>
-                      <input type="checkbox" name="checkbox" checked={list.status === "Completed"} onChange={() => handleCheckBox(task.id)} />
-                      <p className='task-text'>{task.description}</p>
-                    </div>
-                    <div className='delete-btn'>
-                      Delete
-                    </div>
+              list.filter((list) => {
+                if (filter === "Active") {
+                  return list.status === "Active"
+                } else if (filter === "Completed") {
+                  return list.status === "Completed"
+                } else if(filter === "Logs") {
+                  return null
+                } else { return true }
+              }).map((task, index) => (
+                <div key={index} className='task'>
+                  <div className='task-item'>
+                    <input type="checkbox" name="checkbox" checked={task.status === "Completed"} onChange={() => handleCheckBox(task.id)} />
+                    <p className='task-text'>{task.description}</p>
                   </div>
-                ))
+                  <div className='delete-btn' onClick={() => handleDeleteButton(task.id)}>
+                    Delete
+                  </div>
+                </div>
+
+              ))
+            }
+            {(list.length !== 0) ?
+              <div className='summary-container'>
+                <div className='summary-text'>{checkedTask} of {totalTask} tasks completed</div>
+                <div className='clear-summary' onClick={() => handleClearButton()}>Clear completed</div>
+              </div> : null
             }
           </div>
 
