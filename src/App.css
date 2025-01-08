@@ -234,7 +234,15 @@
 .log-container {
   display: flex;
   flex-direction: column;
-
+  width: 100%;
+}
+.log-title {
+  color: #363636;
+  font-family: Inter;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
 }
 .log-text {
   color: #6B7280;
@@ -243,4 +251,8 @@
   font-style: normal;
   font-weight: 400;
   line-height: normal;
+}
+.log-item {
+  display: flex;
+  justify-content: space-around;
 }
